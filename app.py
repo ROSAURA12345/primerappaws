@@ -12,7 +12,7 @@ def inject_now():
 def get_db_connection():
     try:
         conn = mysql.connector.connect(
-            host='localhost',
+            host='172.31.28.204',
             user='root',
             password='',
             database='biblioteca',
