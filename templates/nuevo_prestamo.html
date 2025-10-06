@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Préstamo - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-content">
+        <h1><i class="fas fa-hand-holding"></i> Nuevo Préstamo</h1>
+        <a href="{{ url_for('listar_prestamos') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Préstamos
+        </a>
+    </div>
+</div>
+
+<div class="form-container">
+    <div class="form-card">
+        <form method="POST" class="loan-form">
+            <div class="form-grid">
+                <!-- Libro -->
+                <div class="form-group">
+                    <label for="libro_id" class="required">Libro a Prestar</label>
+                    <select id="libro_id" name="libro_id" required class="form-control">
+                        <option value="">Selecciona un libro...</option>
+                        {% for libro in libros %}
+                            <option value="{{ libro.id }}" 
+                                    {% if request.args.get('libro_id')|int == libro.id %}selected{% endif %}>
+                                {{ libro.titulo }} - {{ libro.autor }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-help">Solo se muestran libros con ejemplares disponibles</small>
+                </div>
+
+                <!-- Información del Prestatario -->
+                <div class="form-group full-width">
+                    <h3><i class="fas fa-user"></i> Información del Prestatario</h3>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre_prestatario" class="required">Nombre Completo</label>
+                    <input type="text" id="nombre_prestatario" name="nombre_prestatario" required 
+                           placeholder="Nombre y apellidos" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="email_prestatario">Email</label>
+                    <input type="email" id="email_prestatario" name="email_prestatario" 
+                           placeholder="correo@ejemplo.com" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono" name="telefono" 
+                           placeholder="Número de contacto" class="form-control">
+                </div>
+
+                <!-- Fechas -->
+                <div class="form-group full-width">
+                    <h3><i class="fas fa-calendar-alt"></i> Fechas del Préstamo</h3>
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha_prestamo" class="required">Fecha de Préstamo</label>
+                    <input type="date" id="fecha_prestamo" name="fecha_prestamo" 
+                           value="{{ fecha_hoy }}" required class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha_devolucion" class="required">Fecha de Devolución</label>
+                    <input type="date" id="fecha_devolucion" name="fecha_devolucion" 
+                           value="{{ fecha_devolucion }}" required class="form-control">
+                    <small class="form-help">Fecha estimada de devolución (máximo 30 días)</small>
+                </div>
+
+                <!-- Observaciones -->
+                <div class="form-group full-width">
+                    <label for="observaciones">Observaciones</label>
+                    <textarea id="observaciones" name="observaciones" 
+                              placeholder="Notas adicionales sobre el préstamo..." 
+                              rows="3" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large">
+                    <i class="fas fa-hand-holding"></i> Registrar Préstamo
+                </button>
+                <a href="{{ url_for('listar_prestamos') }}" class="btn btn-outline">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="form-help-card">
+        <h3><i class="fas fa-info-circle"></i> Información del Préstamo</h3>
+        
+        <div class="loan-terms">
+            <h4>Políticas de Préstamo:</h4>
+            <ul class="terms-list">
+                <li>El período máximo de préstamo es de 30 días</li>
+                <li>Se puede renovar el préstamo si no hay reservas</li>
+                <li>Los libros atrasados generan multas automáticas</li>
+                <li>El prestatario es responsable del libro prestado</li>
+            </ul>
+        </div>
+
+        <div class="current-info">
+            <h4>Libros Disponibles:</h4>
+            <p><strong>{{ libros|length }}</strong> libros disponibles para préstamo</p>
+            
+            {% if not libros %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No hay libros disponibles en este momento
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Validación de fechas
+    document.addEventListener('DOMContentLoaded', function() {
+        const fechaPrestamo = document.getElementById('fecha_prestamo');
+        const fechaDevolucion = document.getElementById('fecha_devolucion');
+        
+        // Establecer fecha mínima para devolución
+        fechaPrestamo.addEventListener('change', function() {
+            const minDate = new Date(this.value);
+            minDate.setDate(minDate.getDate() + 1);
+            fechaDevolucion.min = minDate.toISOString().split('T')[0];
+            
+            // Establecer fecha máxima (30 días después)
+            const maxDate = new Date(this.value);
+            maxDate.setDate(maxDate.getDate() + 30);
+            fechaDevolucion.max = maxDate.toISOString().split('T')[0];
+        });
+    });
+</script>
+{% endblock %}

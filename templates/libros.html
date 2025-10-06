@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Libros - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-content">
+        <h1><i class="fas fa-book"></i> Gestión de Libros</h1>
+        <a href="{{ url_for('agregar_libro') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Agregar Libro
+        </a>
+    </div>
+</div>
+
+<!-- Filtros y Búsqueda -->
+<div class="filters-card">
+    <form method="GET" class="filter-form">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="text" name="busqueda" value="{{ busqueda }}" 
+                       placeholder="Buscar por título, autor o ISBN..." class="form-control">
+            </div>
+            <div class="form-group">
+                <select name="genero" class="form-control">
+                    <option value="">Todos los géneros</option>
+                    {% for genero in generos %}
+                        <option value="{{ genero }}" {% if genero_filtro == genero %}selected{% endif %}>
+                            {{ genero }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <a href="{{ url_for('listar_libros') }}" class="btn btn-outline">
+                    <i class="fas fa-refresh"></i> Limpiar
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Lista de Libros -->
+<div class="content-card">
+    {% if libros %}
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>Género</th>
+                        <th>ISBN</th>
+                        <th>Ejemplares</th>
+                        <th>Disponibles</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for libro in libros %}
+                        <tr>
+                            <td>
+                                <strong>{{ libro.titulo }}</strong>
+                                {% if libro.anio_publicacion %}
+                                    <br><small class="text-muted">({{ libro.anio_publicacion }})</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ libro.autor }}</td>
+                            <td>
+                                {% if libro.genero %}
+                                    <span class="badge badge-outline">{{ libro.genero }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if libro.isbn %}
+                                    <code>{{ libro.isbn }}</code>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="number-badge">{{ libro.ejemplares }}</span>
+                            </td>
+                            <td>
+                                {% if libro.ejemplares_disponibles > 0 %}
+                                    <span class="badge badge-success">{{ libro.ejemplares_disponibles }}</span>
+                                {% else %}
+                                    <span class="badge badge-danger">0</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('editar_libro', id=libro.id) }}" 
+                                       class="btn btn-sm btn-edit" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ url_for('eliminar_libro', id=libro.id) }}" 
+                                       class="btn btn-sm btn-delete" 
+                                       onclick="return confirmarEliminacion('¿Estás seguro de eliminar el libro \"{{ libro.titulo }}\"?')"
+                                       title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% if libro.ejemplares_disponibles > 0 %}
+                                        <a href="{{ url_for('nuevo_prestamo') }}?libro_id={{ libro.id }}" 
+                                           class="btn btn-sm btn-success" title="Prestar">
+                                            <i class="fas fa-hand-holding"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="table-footer">
+            <p>Mostrando <strong>{{ libros|length }}</strong> libro(s)</p>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-book"></i>
+            <h3>No se encontraron libros</h3>
+            <p>
+                {% if busqueda or genero_filtro %}
+                    Intenta ajustar los filtros de búsqueda o
+                {% endif %}
+                <a href="{{ url_for('agregar_libro') }}">agrega el primer libro</a> al sistema.
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

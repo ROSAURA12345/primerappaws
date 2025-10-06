@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Libro - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-content">
+        <h1><i class="fas fa-edit"></i> Editar Libro</h1>
+        <a href="{{ url_for('listar_libros') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Libros
+        </a>
+    </div>
+</div>
+
+<div class="form-container">
+    <div class="form-card">
+        <form method="POST" class="book-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="titulo" class="required">Título del Libro</label>
+                    <input type="text" id="titulo" name="titulo" 
+                           value="{{ libro.titulo }}" required class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="autor" class="required">Autor</label>
+                    <input type="text" id="autor" name="autor" 
+                           value="{{ libro.autor }}" required class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="isbn">ISBN</label>
+                    <input type="text" id="isbn" name="isbn" 
+                           value="{{ libro.isbn or '' }}" class="form-control" maxlength="20">
+                </div>
+
+                <div class="form-group">
+                    <label for="genero">Género</label>
+                    <input type="text" id="genero" name="genero" 
+                           value="{{ libro.genero or '' }}" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="anio_publicacion">Año de Publicación</label>
+                    <input type="number" id="anio_publicacion" name="anio_publicacion" 
+                           value="{{ libro.anio_publicacion or '' }}" min="1000" max="{{ now.year }}" 
+                           class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="editorial">Editorial</label>
+                    <input type="text" id="editorial" name="editorial" 
+                           value="{{ libro.editorial or '' }}" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="ejemplares" class="required">Número de Ejemplares</label>
+                    <input type="number" id="ejemplares" name="ejemplares" 
+                           value="{{ libro.ejemplares }}" min="1" max="1000" required class="form-control">
+                    <small class="form-help">
+                        Actual: {{ libro.ejemplares }} ejemplares, 
+                        {{ libro.ejemplares_disponibles }} disponibles
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large">
+                    <i class="fas fa-save"></i> Actualizar Libro
+                </button>
+                <a href="{{ url_for('listar_libros') }}" class="btn btn-outline">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="book-info-card">
+        <h3><i class="fas fa-info-circle"></i> Información del Libro</h3>
+        <div class="info-list">
+            <div class="info-item">
+                <strong>Fecha de Registro:</strong>
+                <span>
+                    {% if libro.fecha_registro %}
+                        {{ libro.fecha_registro.strftime('%d/%m/%Y %H:%M') }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-item">
+                <strong>Ejemplares Disponibles:</strong>
+                <span class="badge {% if libro.ejemplares_disponibles > 0 %}badge-success{% else %}badge-danger{% endif %}">
+                    {{ libro.ejemplares_disponibles }}/{{ libro.ejemplares }}
+                </span>
+            </div>
+            <div class="info-item">
+                <strong>Estado:</strong>
+                {% if libro.ejemplares_disponibles == libro.ejemplares %}
+                    <span class="badge badge-success">Todos disponibles</span>
+                {% elif libro.ejemplares_disponibles > 0 %}
+                    <span class="badge badge-warning">Parcialmente prestado</span>
+                {% else %}
+                    <span class="badge badge-danger">Todos prestados</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

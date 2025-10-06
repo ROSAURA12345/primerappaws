@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ total_libros }}</h3>
+                <p>Total Libros</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ prestamos_activos }}</h3>
+                <p>Préstamos Activos</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ prestamos_atrasados }}</h3>
+                <p>Préstamos Atrasados</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ libros_populares|length }}</h3>
+                <p>Libros Populares</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secciones de contenido -->
+    <div class="content-grid">
+        <!-- Libros Populares -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2><i class="fas fa-fire"></i> Libros Más Populares</h2>
+            </div>
+            <div class="card-body">
+                {% if libros_populares %}
+                    <div class="book-list">
+                        {% for libro in libros_populares %}
+                            <div class="book-item">
+                                <div class="book-info">
+                                    <h4>{{ libro.titulo }}</h4>
+                                    <p class="book-author">{{ libro.autor }}</p>
+                                    <div class="book-meta">
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-chart-line"></i>
+                                            {{ libro.total_prestamos }} préstamos
+                                        </span>
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-copy"></i>
+                                            {{ libro.ejemplares_disponibles }}/{{ libro.ejemplares }} disp.
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <p>No hay datos de libros populares</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Préstamos Recientes -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2><i class="fas fa-clock"></i> Préstamos Recientes</h2>
+            </div>
+            <div class="card-body">
+                {% if prestamos_recientes %}
+                    <div class="loan-list">
+                        {% for prestamo in prestamos_recientes %}
+                            <div class="loan-item">
+                                <div class="loan-info">
+                                    <h4>{{ prestamo.titulo }}</h4>
+                                    <p class="loan-borrower">
+                                        <i class="fas fa-user"></i>
+                                        {{ prestamo.nombre_prestatario }}
+                                    </p>
+                                    <div class="loan-meta">
+                                        <span class="loan-date">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            {{ prestamo.fecha_prestamo }}
+                                        </span>
+                                        <span class="badge badge-{{ 'success' if prestamo.estado == 'devuelto' else 'warning' if prestamo.estado == 'prestado' else 'danger' }}">
+                                            {{ prestamo.estado|title }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-exchange-alt"></i>
+                        <p>No hay préstamos recientes</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="quick-actions">
+        <h2>Acciones Rápidas</h2>
+        <div class="actions-grid">
+            <a href="{{ url_for('agregar_libro') }}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <h3>Agregar Libro</h3>
+                <p>Registrar nuevo libro en el sistema</p>
+            </a>
+
+            <a href="{{ url_for('nuevo_prestamo') }}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-hand-holding"></i>
+                </div>
+                <h3>Nuevo Préstamo</h3>
+                <p>Registrar préstamo de libro</p>
+            </a>
+
+            <a href="{{ url_for('listar_libros') }}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>Buscar Libros</h3>
+                <p>Explorar catálogo completo</p>
+            </a>
+
+            <a href="{{ url_for('listar_prestamos') }}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <h3>Ver Préstamos</h3>
+                <p>Gestionar todos los préstamos</p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

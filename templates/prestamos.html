@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Préstamos - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-content">
+        <h1><i class="fas fa-exchange-alt"></i> Gestión de Préstamos</h1>
+        <a href="{{ url_for('nuevo_prestamo') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Préstamo
+        </a>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="filters-card">
+    <div class="filter-tabs">
+        <a href="{{ url_for('listar_prestamos') }}" 
+           class="filter-tab {% if not estado_filtro %}active{% endif %}">
+            <i class="fas fa-list"></i> Todos
+        </a>
+        <a href="?estado=prestado" 
+           class="filter-tab {% if estado_filtro == 'prestado' %}active{% endif %}">
+            <i class="fas fa-clock"></i> Prestados
+        </a>
+        <a href="?estado=devuelto" 
+           class="filter-tab {% if estado_filtro == 'devuelto' %}active{% endif %}">
+            <i class="fas fa-check"></i> Devueltos
+        </a>
+        <a href="?estado=atrasado" 
+           class="filter-tab {% if estado_filtro == 'atrasado' %}active{% endif %}">
+            <i class="fas fa-exclamation-triangle"></i> Atrasados
+        </a>
+    </div>
+</div>
+
+<!-- Lista de Préstamos -->
+<div class="content-card">
+    {% if prestamos %}
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Libro</th>
+                        <th>Prestatario</th>
+                        <th>Fecha Préstamo</th>
+                        <th>Fecha Devolución</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prestamo in prestamos %}
+                        <tr class="loan-row {% if prestamo.estado == 'atrasado' %}row-warning{% endif %}">
+                            <td>
+                                <strong>{{ prestamo.titulo }}</strong>
+                                <br>
+                                <small class="text-muted">{{ prestamo.autor }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ prestamo.nombre_prestatario }}</strong>
+                                {% if prestamo.email_prestatario %}
+                                    <br><small class="text-muted">{{ prestamo.email_prestatario }}</small>
+                                {% endif %}
+                                {% if prestamo.telefono %}
+                                    <br><small class="text-muted">{{ prestamo.telefono }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ prestamo.fecha_prestamo }}</td>
+                            <td>
+                                {% if prestamo.fecha_devolucion %}
+                                    {{ prestamo.fecha_devolucion }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if prestamo.estado == 'prestado' %}
+                                    <span class="badge badge-warning">
+                                        <i class="fas fa-clock"></i> Prestado
+                                    </span>
+                                {% elif prestamo.estado == 'devuelto' %}
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check"></i> Devuelto
+                                    </span>
+                                    {% if prestamo.fecha_devolucion_real %}
+                                        <br><small>el {{ prestamo.fecha_devolucion_real }}</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge badge-danger">
+                                        <i class="fas fa-exclamation-triangle"></i> Atrasado
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    {% if prestamo.estado != 'devuelto' %}
+                                        <a href="{{ url_for('devolver_prestamo', id=prestamo.id) }}" 
+                                           class="btn btn-sm btn-success" 
+                                           title="Registrar Devolución">
+                                            <i class="fas fa-undo"></i>
+                                        </a>
+                                    {% endif %}
+                                    
+                                    {% if prestamo.estado == 'devuelto' %}
+                                        <a href="{{ url_for('eliminar_prestamo', id=prestamo.id) }}" 
+                                           class="btn btn-sm btn-delete" 
+                                           onclick="return confirmarEliminacion('¿Eliminar registro de préstamo?')"
+                                           title="Eliminar Registro">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="table-footer">
+            <p>Mostrando <strong>{{ prestamos|length }}</strong> préstamo(s)</p>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-exchange-alt"></i>
+            <h3>No se encontraron préstamos</h3>
+            <p>
+                {% if estado_filtro %}
+                    No hay préstamos con el estado "{{ estado_filtro }}"
+                {% else %}
+                    No hay préstamos registrados en el sistema.
+                {% endif %}
+                <a href="{{ url_for('nuevo_prestamo') }}">Registra el primer préstamo</a>.
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

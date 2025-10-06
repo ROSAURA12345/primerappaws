@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Biblioteca{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-book"></i>
+                    <h1>Sistema de Biblioteca</h1>
+                </div>
+                <nav class="main-nav">
+                    <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                        <i class="fas fa-home"></i> Inicio
+                    </a>
+                    <a href="{{ url_for('listar_libros') }}" class="nav-link {% if request.endpoint == 'listar_libros' %}active{% endif %}">
+                        <i class="fas fa-book"></i> Libros
+                    </a>
+                    <a href="{{ url_for('listar_prestamos') }}" class="nav-link {% if request.endpoint == 'listar_prestamos' %}active{% endif %}">
+                        <i class="fas fa-exchange-alt"></i> Préstamos
+                    </a>
+                    <a href="{{ url_for('nuevo_prestamo') }}" class="nav-link {% if request.endpoint == 'nuevo_prestamo' %}active{% endif %}">
+                        <i class="fas fa-plus-circle"></i> Nuevo Préstamo
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <div class="alert-content">
+                                <span class="alert-message">{{ message }}</span>
+                                <button class="close-btn" onclick="this.parentElement.parentElement.remove()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Main Content -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <p>&copy; 2024 Sistema de Biblioteca. Desarrollado con Python Flask y MySQL.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Auto-ocultar mensajes después de 5 segundos
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+
+        // Confirmación antes de eliminar
+        function confirmarEliminacion(mensaje = '¿Estás seguro de que quieres eliminar este registro?') {
+            return confirm(mensaje);
+        }
+    </script>
+</body>
+</html>
